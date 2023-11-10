@@ -30,6 +30,12 @@ func (u *DepositMoney) Execute(accountId string, amount float64, description str
 		return errors.New("unable to register this transaction")
 	}
 
+	account.AddTransaction(transaction)
+	err = u.accountRepository.Save(account)
+	if err != nil {
+		return errors.New("unable to register transaction")
+	}
+
 	processTransactionChan <- transaction
 
 	return nil
