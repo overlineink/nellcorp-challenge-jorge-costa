@@ -13,7 +13,6 @@ const (
 	TransactionPending   string = "pending"
 	TransactionCompleted string = "completed"
 	TransactionError     string = "error"
-	TransactionConfirmed string = "confirmed"
 )
 
 const (
@@ -70,10 +69,18 @@ func (t *Transaction) isValid() error {
 
 func (t *Transaction) Commit() error {
 	if t.Account != nil {
-		t.Account.Debit(t.Amount)
+		err := t.Account.Debit(t.Amount)
+		if err != nil {
+			return err
+		}
 	}
-	t.Payee.Credit(t.Amount)
-	t.Status = TransactionConfirmed
+
+	err := t.Payee.Credit(t.Amount)
+	if err != nil {
+		return err
+	}
+
+	t.Status = TransactionCompleted
 	t.UpdatedAt = time.Now()
 	return nil
 }
