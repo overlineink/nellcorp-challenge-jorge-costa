@@ -62,7 +62,8 @@ func Test_MoneyRefunding(t *testing.T) {
 	)
 	require.Nil(t, errRefunding)
 	moneyRefunding.CancelTransaction = moneyTransfer
-	moneyRefunding.Commit()
+	err = moneyRefunding.Commit()
+	require.Nil(t, err)
 	require.Equal(t, float64(10), payee.Balance)
 	require.Equal(t, float64(10), account.Balance)
 	require.Equal(t, entities.TransactionError, moneyRefunding.CancelTransaction.Status)
