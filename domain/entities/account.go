@@ -12,9 +12,10 @@ import (
 
 type Account struct {
 	domain.Entity `valid:"required"`
-	FullName      string  `json:"full_name" valid:"notnull"`
-	Number        string  `json:"number" valid:"notnull"`
-	Balance       float64 `json:"balance" valid:"notnull"`
+	FullName      string         `json:"full_name" valid:"notnull"`
+	Number        string         `json:"number" valid:"notnull"`
+	Balance       float64        `json:"balance" valid:"notnull"`
+	Transactions  []*Transaction `json:"transactions" valid:"-"`
 }
 
 func (a *Account) isValid() error {
