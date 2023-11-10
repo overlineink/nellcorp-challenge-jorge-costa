@@ -26,12 +26,14 @@ func Test_FullNameValidation(t *testing.T) {
 func Test_CreditAccount(t *testing.T) {
 	account, _ := entities.NewAccount("Assis Ngolo", 0)
 	require.Equal(t, float64(0), account.Balance)
-	account.Credit(10)
+	err := account.Credit(10)
+	require.Nil(t, err)
 	require.Equal(t, float64(10), account.Balance)
 }
 
 func Test_DebitAccount(t *testing.T) {
 	account, _ := entities.NewAccount("Assis Ngolo", 150)
-	account.Debit(10)
+	err := account.Debit(10)
+	require.Nil(t, err)
 	require.Equal(t, float64(140), account.Balance)
 }

@@ -10,14 +10,16 @@ func Test_NewTransaction(t *testing.T) {
 	payee, _ := entities.NewAccount("Jane Doe", 10)
 
 	transaction1, err1 := entities.NewTransaction(entities.MoneyDeposit, 10, payee, nil, "to Jane")
+	require.Nil(t, err1)
 	transaction1.Commit()
 	require.Nil(t, err1)
-	require.Equal(t, entities.TransactionConfirmed, transaction1.Status)
+	require.Equal(t, entities.TransactionCompleted, transaction1.Status)
 	require.Equal(t, float64(20), payee.Balance)
 
 	account, _ := entities.NewAccount("Jane Doe", 10)
 	transaction2, err2 := entities.NewTransaction(entities.MoneyTransfer, 10, payee, account, "to Jane")
-	transaction2.Commit()
+	require.Nil(t, err2)
+	err2 = transaction2.Commit()
 	require.Nil(t, err2)
 	require.Equal(t, float64(0), account.Balance)
 }
