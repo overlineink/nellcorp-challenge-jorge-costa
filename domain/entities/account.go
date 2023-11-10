@@ -35,10 +35,23 @@ func (a *Account) GenerateAccountNumber() {
 	a.Number = fmt.Sprint(offset + rand.Intn(offset-startRange+1))
 }
 
-func NewAccount(fullName string) (*Account, error) {
+func (a *Account) Credit(amount float64) error {
+	a.Balance += amount
+	a.UpdatedAt = time.Now()
+
+	return nil
+}
+
+func (a *Account) Debit(amount float64) error {
+	a.Balance -= amount
+	a.UpdatedAt = time.Now()
+	return nil
+}
+
+func NewAccount(fullName string, balance float64) (*Account, error) {
 	account := Account{
 		FullName: fullName,
-		Balance:  0.00,
+		Balance:  balance,
 	}
 
 	account.GenerateAccountNumber()
