@@ -49,6 +49,10 @@ func (a *Account) Debit(amount float64) error {
 	return nil
 }
 
+func (a *Account) AddTransaction(transaction *Transaction) {
+	a.Transactions = append(a.Transactions, transaction)
+}
+
 func NewAccount(fullName string, balance float64) (*Account, error) {
 	account := Account{
 		FullName: fullName,
