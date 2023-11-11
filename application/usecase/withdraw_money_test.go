@@ -12,10 +12,14 @@ func Test_WithdrawMoney(t *testing.T) {
 	db := database.ConnectDB()
 	accountRepository := repositories.AccountRepositoryDb{Db: db}
 	transactionRepository := repositories.TransactionRepositoryDb{Db: db}
+
+	RegisterAccount := usecase.RegisterAccount{AccountRepository: &accountRepository}
+	account, _ := RegisterAccount.Execute("Jorge Costa", 500000)
+
 	WithdrawMoney := usecase.WithdrawMoney{
 		AccountRepository:     &accountRepository,
 		TransactionRepository: &transactionRepository,
 	}
-	err := WithdrawMoney.Execute("c3db21a0-ddd8-4eab-81c3-0a78ed51106a", 20, "beer with friends")
+	err := WithdrawMoney.Execute(account.ID, 200000, "beer with friends")
 	require.Nil(t, err)
 }

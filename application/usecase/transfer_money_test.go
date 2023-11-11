@@ -1,6 +1,7 @@
-package usecase
+package usecase_test
 
 import (
+	"github.com/overlineink/nellcorp-challenge-jorge-costa/application/usecase"
 	"github.com/overlineink/nellcorp-challenge-jorge-costa/infra/database"
 	"github.com/overlineink/nellcorp-challenge-jorge-costa/infra/database/repositories"
 	"github.com/stretchr/testify/require"
@@ -11,10 +12,15 @@ func Test_TransferMoney(t *testing.T) {
 	db := database.ConnectDB()
 	accountRepository := repositories.AccountRepositoryDb{Db: db}
 	transactionRepository := repositories.TransactionRepositoryDb{Db: db}
-	depositMoney := TransferMoney{
+
+	RegisterAccount := usecase.RegisterAccount{AccountRepository: &accountRepository}
+	account1, _ := RegisterAccount.Execute("Assis Ngolo", 500000)
+	account2, _ := RegisterAccount.Execute("Jorge Costa", 50000)
+
+	depositMoney := usecase.TransferMoney{
 		AccountRepository:     &accountRepository,
 		TransactionRepository: &transactionRepository,
 	}
-	err := depositMoney.Execute("c3db21a0-ddd8-4eab-81c3-0a78ed51106a", "f1cf2d8d-bdbb-4d6a-b333-753a45f451e3", 1000, "a simple gift")
+	_, err := depositMoney.Execute(account1.ID, account2.ID, 500000, "my description")
 	require.Nil(t, err)
 }
