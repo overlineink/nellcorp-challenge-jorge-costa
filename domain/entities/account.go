@@ -15,7 +15,7 @@ type Account struct {
 	FullName      string         `json:"full_name" valid:"notnull" gorm:"column:full_name;type:varchar(255);not null"`
 	Number        string         `json:"number" valid:"notnull" gorm:"type:varchar(100);not null"`
 	Balance       float64        `json:"balance" valid:"notnull" gorm:"type:float;not null;unique"`
-	Transactions  []*Transaction `json:"transactions" valid:"-" gorm:"ForeignKey:AccountID"`
+	Transactions  []*Transaction `json:"transactions" valid:"-" gorm:"column:transactions;foreignKey:AccountID"`
 }
 
 func (a *Account) isValid() error {
