@@ -11,6 +11,7 @@ func main() {
 	app.Post("/account/register", http.RegisterAccountHandler)
 	app.Get("/account/:id/balance", http.GetAccountBalanceHandler)
 	app.Post("/account/balance", http.DepositMoneyHandler)
+	app.Post("/account/transfer", http.TransferMoneyHandler)
 
 	app.Listen(":3000")
 }
