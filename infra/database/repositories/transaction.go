@@ -28,7 +28,7 @@ func (r *TransactionRepositoryDb) Save(transaction *entities.Transaction) error 
 
 func (r *TransactionRepositoryDb) FindById(id string) (*entities.Transaction, error) {
 	var transaction entities.Transaction
-	r.Db.Preload("Account").First(&transaction, "id = ?", id)
+	r.Db.Preload("Account").Preload("Payee").Preload("CancelTransaction").First(&transaction, "id = ?", id)
 
 	if transaction.ID == "" {
 		return nil, fmt.Errorf("no transaction was found")

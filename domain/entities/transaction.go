@@ -111,12 +111,13 @@ func (t *Transaction) refund() error {
 	if err := t.Payee.Credit(t.Amount); err != nil {
 		return err
 	}
+
 	t.CancelTransaction.CancelDescription = t.Description
 	t.CancelTransaction.Status = TransactionError
 	t.CancelTransaction.UpdatedAt = time.Now()
+
 	t.Status = TransactionCompleted
 	t.UpdatedAt = time.Now()
-
 	if err := t.CancelTransaction.isValid(); err != nil {
 		return err
 	}
