@@ -1,14 +1,14 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/overlineink/nellcorp-challenge-jorge-costa/application/repositories"
 	"github.com/overlineink/nellcorp-challenge-jorge-costa/domain/entities"
-	"sync"
 )
 
 type TransferMoney struct {
-	accountRepository     repositories.AccountRepository
-	transactionRepository repositories.TransactionRepository
+	AccountRepository     repositories.AccountRepository
+	TransactionRepository repositories.TransactionRepository
 }
 
 func (u *TransferMoney) Execute(
@@ -16,15 +16,12 @@ func (u *TransferMoney) Execute(
 	payeeId string,
 	amount float64,
 	description string,
-	processTransactionChan chan<- *entities.Transaction,
-	wg *sync.WaitGroup,
 ) error {
-	defer wg.Done()
-	account, err := u.accountRepository.FindAccountById(accountId)
+	account, err := u.AccountRepository.FindAccountById(accountId)
 	if err != nil {
 		return err
 	}
-	payee, err := u.accountRepository.FindAccountById(payeeId)
+	payee, err := u.AccountRepository.FindAccountById(payeeId)
 	if err != nil {
 		return err
 	}
@@ -34,18 +31,15 @@ func (u *TransferMoney) Execute(
 		return err
 	}
 
-	account.AddTransaction(transaction)
-	err = u.accountRepository.Save(account)
-	if err != nil {
-		return err
-	}
-	payee.AddTransaction(transaction)
-	err = u.accountRepository.Save(payee)
+	err = transaction.Commit()
 	if err != nil {
 		return err
 	}
 
-	processTransactionChan <- transaction
+	err = u.TransactionRepository.Save(transaction)
+	if err != nil {
+		return errors.New("error while saving transaction")
+	}
 
 	return nil
 }
