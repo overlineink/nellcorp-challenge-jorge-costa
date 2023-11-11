@@ -9,6 +9,8 @@ func main() {
 	app := fiber.New()
 
 	app.Post("/account/register", http.RegisterAccountHandler)
+	app.Get("/account/:id/balance", http.GetAccountBalanceHandler)
+	app.Post("/account/balance", http.DepositMoneyHandler)
 
 	app.Listen(":3000")
 }
