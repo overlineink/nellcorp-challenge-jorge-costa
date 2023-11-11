@@ -4,20 +4,17 @@ import (
 	"errors"
 	"github.com/overlineink/nellcorp-challenge-jorge-costa/application/repositories"
 	"github.com/overlineink/nellcorp-challenge-jorge-costa/domain/entities"
-	"sync"
 )
 
 type DepositMoney struct {
-	accountRepository     repositories.AccountRepository
-	transactionRepository repositories.TransactionRepository
+	AccountRepository     repositories.AccountRepository
+	TransactionRepository repositories.TransactionRepository
 }
 
-func (u *DepositMoney) Execute(accountId string, amount float64, description string, processTransactionChan chan<- *entities.Transaction, wg *sync.WaitGroup) error {
-	defer wg.Done()
-
-	account, errFindingAccount := u.accountRepository.FindAccountById(accountId)
+func (u *DepositMoney) Execute(accountId string, amount float64, description string) error {
+	account, errFindingAccount := u.AccountRepository.FindAccountById(accountId)
 	if errFindingAccount != nil {
-		return errFindingAccount
+		return errors.New("account not found")
 	}
 
 	transaction, errBuildingTransaction := entities.NewTransaction(entities.MoneyDeposit, amount, account, nil, description)
@@ -25,18 +22,20 @@ func (u *DepositMoney) Execute(accountId string, amount float64, description str
 		return errBuildingTransaction
 	}
 
-	err := u.transactionRepository.Register(transaction)
+	err := u.TransactionRepository.Register(transaction)
 	if err != nil {
-		return errors.New("unable to register this transaction")
+		return err
 	}
 
-	account.AddTransaction(transaction)
-	err = u.accountRepository.Save(account)
+	err = transaction.Commit()
 	if err != nil {
-		return errors.New("unable to register transaction")
+		return err
 	}
 
-	processTransactionChan <- transaction
+	err = u.TransactionRepository.Save(transaction)
+	if err != nil {
+		return errors.New("error while saving transaction")
+	}
 
 	return nil
 }
