@@ -23,15 +23,18 @@ const (
 )
 
 type Transaction struct {
-	domain.Entity     `valid:"required"`
-	Type              string       `json:"type" valid:"notnull"`
-	Amount            float64      `json:"amount" valid:"notnull"`
-	Status            string       `json:"status" valid:"notnull"`
-	Payee             *Account     `json:"payee" valid:"-"`
-	Account           *Account     `json:"account" valid:"-"`
-	Description       string       `json:"description" valid:"-"`
-	CancelTransaction *Transaction `json:"cancel_transaction" valid:"-"`
-	CancelDescription string       `json:"cancel_description" valid:"-"`
+	domain.Entity       `valid:"required"`
+	Type                string       `json:"type" valid:"notnull" gorm:"type:varchar(20);not null"`
+	Amount              float64      `json:"amount" valid:"notnull" gorm:"type:float;not null"`
+	Status              string       `json:"status" valid:"notnull" gorm:"type:varchar(20);not null"`
+	Payee               *Account     `json:"payee" valid:"-"`
+	PayeeID             string       `json:"payee_id" valid:"-" gorm:"column:payee_id;type:uuid;default:NULL"`
+	Account             *Account     `json:"account" valid:"-"`
+	AccountID           string       `json:"account_id" valid:"-" gorm:"column:account_id;type:type:uuid;default:NULL"`
+	Description         string       `json:"description" valid:"-" gorm:"type:varchar(255)"`
+	CancelTransaction   *Transaction `json:"cancel_transaction" valid:"-"`
+	CancelTransactionID string       `json:"cancel_transaction_id" valid:"-" gorm:"column:cancel_transaction_id;type:type:uuid;default:NULL"`
+	CancelDescription   string       `json:"cancel_description" valid:"-" gorm:"type:varchar(255);default:NULL"`
 }
 
 func (t *Transaction) isAccountRequired(operation string) bool {
@@ -68,10 +71,6 @@ func (t *Transaction) isValid() error {
 	if (t.Account != nil) && (t.Type == MoneyTransfer) && (t.Account.Balance < t.Amount) {
 		return errors.New("your account does not have enough balance to complete the transaction")
 	}
-
-	//if (t.Type == MoneyRefund) && (t.CancelTransaction.Status != TransactionCompleted) {
-	//	return errors.New("the given transaction was not processed yet")
-	//}
 
 	return nil
 }
@@ -137,6 +136,12 @@ func NewTransaction(Type string, amount float64, payee *Account, account *Accoun
 
 	transaction.ID = uuid.NewV4().String()
 	transaction.CreatedAt = time.Now()
+	if account != nil {
+		transaction.AccountID = account.ID
+	}
+	if payee != nil {
+		transaction.PayeeID = payee.ID
+	}
 
 	err := transaction.isValid()
 	if err != nil {
