@@ -16,30 +16,30 @@ func (u *TransferMoney) Execute(
 	payeeId string,
 	amount float64,
 	description string,
-) error {
+) (*entities.Transaction, error) {
 	account, err := u.AccountRepository.FindAccountById(accountId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	payee, err := u.AccountRepository.FindAccountById(payeeId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	transaction, err := entities.NewTransaction(entities.MoneyTransfer, amount, payee, account, description)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = transaction.Commit()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = u.TransactionRepository.Save(transaction)
 	if err != nil {
-		return errors.New("error while saving transaction")
+		return nil, errors.New("error while saving transaction")
 	}
 
-	return nil
+	return transaction, nil
 }

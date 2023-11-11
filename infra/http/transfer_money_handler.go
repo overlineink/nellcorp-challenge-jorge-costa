@@ -28,7 +28,7 @@ func TransferMoneyHandler(c *fiber.Ctx) error {
 		TransactionRepository: &transactionRepository,
 	}
 
-	err := TransferMoney.Execute(body.AccountId, body.PayeeId, body.Amount, body.Description)
+	_, err := TransferMoney.Execute(body.AccountId, body.PayeeId, body.Amount, body.Description)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 

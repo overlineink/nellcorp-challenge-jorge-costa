@@ -11,9 +11,21 @@ import (
 func Test_RefundMoney(t *testing.T) {
 	db := database.ConnectDB()
 	transactionRepository := repositories.TransactionRepositoryDb{Db: db}
+	accountRepository := repositories.AccountRepositoryDb{Db: db}
 	RefundMoney := usecase.RefundMoney{
 		TransactionRepository: &transactionRepository,
 	}
-	err := RefundMoney.Execute("ea94b58f-637c-44f5-a17b-f6d8231c30d2", "it was a mistake")
+	RegisterAccount := usecase.RegisterAccount{AccountRepository: &accountRepository}
+
+	account1, _ := RegisterAccount.Execute("Jorge Costa", 500000)
+	account2, _ := RegisterAccount.Execute("Assis Ngolo", 50000)
+
+	depositMoney := usecase.TransferMoney{
+		AccountRepository:     &accountRepository,
+		TransactionRepository: &transactionRepository,
+	}
+	transaction, _ := depositMoney.Execute(account1.ID, account2.ID, 500000, "its a gift")
+
+	err := RefundMoney.Execute(transaction.ID, "it was a mistake")
 	require.Nil(t, err)
 }
